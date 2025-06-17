@@ -5,7 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 
 // Particle Background Imports
 import Particles from "react-tsparticles";
-import { loadSlim } from "tsparticles-slim";
+import { loadSlim } from "tsparticles-slim"; // Import the slim engine
 
 // Import All Your Components
 import Navbar from './components/Navbar';
@@ -35,28 +35,23 @@ function App() {
   }, [theme]);
 
 
-  // === PARTICLES.JS LOGIC ===
-  const [particlesInit, setParticlesInit] = useState(false);
-
-  // this initializes the particles engine
-  useEffect(() => {
-    // `init` is a function that returns a promise, so we need to handle it
-    const initParticles = async () => {
-      await loadSlim(tsParticles); // tsParticles is a global variable from the library
-      setParticlesInit(true);
-    };
-
-    initParticles();
+  // === PARTICLES.JS LOGIC (Corrected Version) ===
+  const particlesInit = useCallback(async (engine) => {
+    console.log(engine);
+    // You can initiate the tsParticles instance (engine) here, adding custom shapes or presets
+    // this loads the tsparticles package bundle, it's the easiest method for getting everything ready
+    // starting from v2 you can add only the features you need reducing the bundle size
+    await loadSlim(engine);
   }, []);
 
-  const particlesLoaded = (container) => {
-    console.log("Particles loaded:", container);
-  };
+  const particlesLoaded = useCallback(async (container) => {
+    await console.log(container);
+  }, []);
 
   const particleOptions = {
     background: {
       color: {
-        value: 'transparent', // Make background transparent to see the CSS background
+        value: 'transparent',
       },
     },
     fpsLimit: 60,
@@ -77,11 +72,9 @@ function App() {
     },
     particles: {
       color: {
-        // Particles will change color based on the theme
         value: theme === 'dark' ? '#ffffff' : '#212121',
       },
       links: {
-        // Links between particles will also change color
         color: theme === 'dark' ? '#ffffff' : '#212121',
         distance: 150,
         enable: true,
@@ -118,16 +111,13 @@ function App() {
     detectRetina: true,
   };
 
-  // Render nothing or a loader while the particles engine is initializing
-  if (!particlesInit) {
-    return null;
-  }
 
   // === MAIN RENDER ===
   return (
     <>
       <Particles
         id="tsparticles"
+        init={particlesInit} // Use the new useCallback function
         loaded={particlesLoaded}
         options={particleOptions}
         style={{
@@ -136,7 +126,7 @@ function App() {
           left: 0,
           width: '100%',
           height: '100%',
-          zIndex: -1, // Ensure it's in the background
+          zIndex: -1,
         }}
       />
       
